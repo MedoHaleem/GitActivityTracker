@@ -2,8 +2,8 @@ use Mix.Config
 
 # Configure your database
 config :git_activity_tracker, GitActivityTracker.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "medo",
+  password: "password",
   database: "git_activity_tracker_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
