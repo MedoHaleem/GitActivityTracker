@@ -31,4 +31,11 @@ defmodule GitActivityTracker.TestHelpers do
     {:ok, release} = Activity.create_release(user, attrs)
     release
   end
+
+  def commit_fixture(%Activity.Repository{} = repository, %Authors.User{} = user, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{date: ~D[2010-04-17], message: "some message", sha: "ASDADDFSFHGHJGHJHGJK"})
+    {:ok, commit} = Activity.create_commit(repository, user, attrs)
+
+    commit
+  end
 end

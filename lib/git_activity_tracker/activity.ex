@@ -231,11 +231,15 @@ defmodule GitActivityTracker.Activity do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_commit(attrs \\ %{}) do
+  def create_commit(%Repository{} = repository, %Authors.User{} = user, attrs \\ %{}) do
     %Commit{}
     |> Commit.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Ecto.Changeset.put_assoc(:repository, repository)
     |> Repo.insert()
   end
+
+
 
   @doc """
   Updates a commit.

@@ -10,7 +10,6 @@ defmodule GitActivityTracker.ActivityTest do
     @update_attrs %{name: "some updated name", uuid: 43}
     @invalid_attrs %{name: nil, uuid: nil}
 
-
     test "list_repositories/0 returns all repositories" do
       repository = repository_fixture()
       assert Activity.list_repositories() == [repository]
@@ -33,7 +32,10 @@ defmodule GitActivityTracker.ActivityTest do
 
     test "update_repository/2 with valid data updates the repository" do
       repository = repository_fixture()
-      assert {:ok, %Repository{} = repository} = Activity.update_repository(repository, @update_attrs)
+
+      assert {:ok, %Repository{} = repository} =
+               Activity.update_repository(repository, @update_attrs)
+
       assert repository.name == "some updated name"
       assert repository.uuid == 43
     end
@@ -62,8 +64,6 @@ defmodule GitActivityTracker.ActivityTest do
     @valid_attrs %{released_at: ~D[2010-04-17], tag_name: "some tag_name", uuid: 42}
     @update_attrs %{released_at: ~D[2011-05-18], tag_name: "some updated tag_name", uuid: 43}
     @invalid_attrs %{released_at: nil, tag_name: nil, uuid: nil}
-
-
 
     test "list_releases/0 returns all releases" do
       owner = user_fixture()
@@ -124,41 +124,46 @@ defmodule GitActivityTracker.ActivityTest do
     alias GitActivityTracker.Activity.Commit
 
     @valid_attrs %{date: ~D[2010-04-17], message: "some message", sha: "some sha"}
-    @update_attrs %{date: ~D[2011-05-18], message: "some updated message", sha: "some updated sha"}
+    @update_attrs %{
+      date: ~D[2011-05-18],
+      message: "some updated message",
+      sha: "some updated sha"
+    }
     @invalid_attrs %{date: nil, message: nil, sha: nil}
 
-    def commit_fixture(attrs \\ %{}) do
-      {:ok, commit} =
-        attrs
-        |> Enum.into(@valid_attrs)
-        |> Activity.create_commit()
-
-      commit
-    end
-
     test "list_commits/0 returns all commits" do
-      commit = commit_fixture()
-      assert Activity.list_commits() == [commit]
+      owner = user_fixture()
+      repo = repository_fixture()
+      %Commit{id: id1} = commit_fixture(repo, owner)
+      assert [%Commit{id: ^id1}] = Activity.list_commits()
     end
 
     test "get_commit!/1 returns the commit with given id" do
-      commit = commit_fixture()
-      assert Activity.get_commit!(commit.id) == commit
+      owner = user_fixture()
+      repo = repository_fixture()
+      %Commit{id: id} = commit_fixture(repo, owner)
+      assert %Commit{id: ^id} = Activity.get_commit!(id)
     end
 
     test "create_commit/1 with valid data creates a commit" do
-      assert {:ok, %Commit{} = commit} = Activity.create_commit(@valid_attrs)
+      owner = user_fixture()
+      repo = repository_fixture()
+      assert {:ok, %Commit{} = commit} = Activity.create_commit(repo, owner, @valid_attrs)
       assert commit.date == ~D[2010-04-17]
       assert commit.message == "some message"
       assert commit.sha == "some sha"
     end
 
     test "create_commit/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Activity.create_commit(@invalid_attrs)
+      owner = user_fixture()
+      repo = repository_fixture()
+      assert {:error, %Ecto.Changeset{}} = Activity.create_commit(repo, owner, @invalid_attrs)
     end
 
     test "update_commit/2 with valid data updates the commit" do
-      commit = commit_fixture()
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
       assert {:ok, %Commit{} = commit} = Activity.update_commit(commit, @update_attrs)
       assert commit.date == ~D[2011-05-18]
       assert commit.message == "some updated message"
@@ -166,19 +171,25 @@ defmodule GitActivityTracker.ActivityTest do
     end
 
     test "update_commit/2 with invalid data returns error changeset" do
-      commit = commit_fixture()
+      owner = user_fixture()
+      repo = repository_fixture()
+      %Commit{id: id} = commit = commit_fixture(repo, owner)
       assert {:error, %Ecto.Changeset{}} = Activity.update_commit(commit, @invalid_attrs)
-      assert commit == Activity.get_commit!(commit.id)
+      assert %Commit{id: ^id} = Activity.get_commit!(commit.id)
     end
 
     test "delete_commit/1 deletes the commit" do
-      commit = commit_fixture()
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
       assert {:ok, %Commit{}} = Activity.delete_commit(commit)
       assert_raise Ecto.NoResultsError, fn -> Activity.get_commit!(commit.id) end
     end
 
     test "change_commit/1 returns a commit changeset" do
-      commit = commit_fixture()
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
       assert %Ecto.Changeset{} = Activity.change_commit(commit)
     end
   end
