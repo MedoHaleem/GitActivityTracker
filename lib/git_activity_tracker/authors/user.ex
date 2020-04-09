@@ -17,6 +17,7 @@ defmodule GitActivityTracker.Authors.User do
     user
     |> cast(attrs, [:username, :email, :uuid])
     |> validate_required([:username, :email, :uuid])
+    |> validate_format(:email, ~r/@/)
     |> unique_constraint(:email)
     |> unique_constraint(:uuid)
   end

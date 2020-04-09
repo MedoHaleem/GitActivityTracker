@@ -7,7 +7,7 @@ defmodule GitActivityTracker.Repo.Migrations.CreateReleases do
       add :uuid, :integer
       add :tag_name, :string
       add :released_at, :date
-      add :user_id, references(:users, on_delete: :nothing, type: :binary_id)
+      add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps()
     end

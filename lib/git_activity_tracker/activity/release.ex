@@ -8,7 +8,7 @@ defmodule GitActivityTracker.Activity.Release do
     field :released_at, :date
     field :tag_name, :string
     field :uuid, :integer
-    field :user_id, :binary_id
+    belongs_to :user, GitActivityTracker.Authors.User
 
     timestamps()
   end
@@ -18,6 +18,7 @@ defmodule GitActivityTracker.Activity.Release do
     release
     |> cast(attrs, [:uuid, :tag_name, :released_at])
     |> validate_required([:uuid, :tag_name, :released_at])
+    |> assoc_constraint(:user)
     |> unique_constraint(:uuid)
   end
 end

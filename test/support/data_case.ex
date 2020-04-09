@@ -24,6 +24,7 @@ defmodule GitActivityTracker.DataCase do
       import Ecto.Changeset
       import Ecto.Query
       import GitActivityTracker.DataCase
+      import GitActivityTracker.TestHelpers
     end
   end
 
