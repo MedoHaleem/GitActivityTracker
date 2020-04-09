@@ -66,7 +66,7 @@ defmodule GitActivityTracker.Activity do
     repo_params = %{uuid: uuid, name: name}
     find_or_create_repository(repo_params)
   end
-  
+
   def find_or_create_repository(repo_params) do
     repository =
       case Repo.get_by(Repository, %{uuid: repo_params.uuid, name: repo_params.name}) do
@@ -157,6 +157,7 @@ defmodule GitActivityTracker.Activity do
 
   """
   def get_release!(id), do: Repo.get!(Release, id)
+
 
   def create_release(%Authors.User{} = user, attrs \\ %{}) do
     %Release{}
@@ -281,7 +282,38 @@ defmodule GitActivityTracker.Activity do
     saved_commits
   end
 
+  def create_commit_with_assoc_release(
+        %Repository{} = repository,
+        %Authors.User{} = user,
+        %Release{} = release,
+        attrs \\ %{}
+      ) do
+    %Commit{}
+    |> Commit.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
+    |> Ecto.Changeset.put_assoc(:repository, repository)
+    |> Ecto.Changeset.put_assoc(:release, release)
+    |> Repo.insert()
+  end
 
+  def save_commits_included_in_the_release(repository, release, commits) do
+    saved_commits =
+      Enum.map(commits, fn commit ->
+        with {:ok, activity} <-
+               GitActivityTracker.Activity.create_commit_with_assoc_release(
+                 repository,
+                 Authors.find_or_create_author(commit["author"]),
+                 release,
+                 commit
+               ) do
+          activity
+        else
+          {:error, changeset} -> changeset
+        end
+      end)
+
+    saved_commits
+  end
 
   @doc """
   Updates a commit.
