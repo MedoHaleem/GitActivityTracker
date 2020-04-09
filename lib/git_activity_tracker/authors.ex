@@ -101,4 +101,29 @@ defmodule GitActivityTracker.Authors do
   def change_user(%User{} = user) do
     User.changeset(user, %{})
   end
+
+  def find_or_create_author(%{"email" => email, "id" => uuid, "name" => name}) do
+    user = %{
+      email: email,
+      uuid: uuid,
+      username: name
+    }
+    find_or_create_author(user)
+  end
+  
+  def find_or_create_author(author) do
+    author =
+      case Repo.get_by(User, %{uuid: author.uuid, email: author.email}) do
+        nil ->
+          %User{} |> User.changeset(author) |> Repo.insert!()
+
+        author ->
+          author
+      end
+
+    author
+  end
+
+
+
 end

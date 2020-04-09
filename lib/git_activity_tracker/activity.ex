@@ -56,6 +56,30 @@ defmodule GitActivityTracker.Activity do
     |> Repo.insert()
   end
 
+  # def find_or_create_repository(repo_params) do
+  #   repository =
+
+  #   repository
+  # end
+
+  def find_or_create_repository(%{"id" => uuid, "name" => name}) do
+    repo_params = %{uuid: uuid, name: name}
+    find_or_create_repository(repo_params)
+  end
+  
+  def find_or_create_repository(repo_params) do
+    repository =
+      case Repo.get_by(Repository, %{uuid: repo_params.uuid, name: repo_params.name}) do
+        nil ->
+          %Repository{} |> Repository.changeset(repo_params) |> Repo.insert!()
+
+        repository ->
+          repository
+      end
+
+    repository
+  end
+
   @doc """
   Updates a repository.
 
@@ -237,6 +261,24 @@ defmodule GitActivityTracker.Activity do
     |> Ecto.Changeset.put_assoc(:user, user)
     |> Ecto.Changeset.put_assoc(:repository, repository)
     |> Repo.insert()
+  end
+
+  def save_commits(repository, commits) do
+    saved_commits =
+      Enum.map(commits, fn commit ->
+        with {:ok, activity} <-
+               create_commit(
+                 repository,
+                 Authors.find_or_create_author(commit["author"]),
+                 commit
+               ) do
+          activity
+        else
+          {:error, changeset} -> changeset
+        end
+      end)
+
+    saved_commits
   end
 
 
