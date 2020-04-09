@@ -119,4 +119,67 @@ defmodule GitActivityTracker.ActivityTest do
       assert %Ecto.Changeset{} = Activity.change_release(release)
     end
   end
+
+  describe "commits" do
+    alias GitActivityTracker.Activity.Commit
+
+    @valid_attrs %{date: ~D[2010-04-17], message: "some message", sha: "some sha"}
+    @update_attrs %{date: ~D[2011-05-18], message: "some updated message", sha: "some updated sha"}
+    @invalid_attrs %{date: nil, message: nil, sha: nil}
+
+    def commit_fixture(attrs \\ %{}) do
+      {:ok, commit} =
+        attrs
+        |> Enum.into(@valid_attrs)
+        |> Activity.create_commit()
+
+      commit
+    end
+
+    test "list_commits/0 returns all commits" do
+      commit = commit_fixture()
+      assert Activity.list_commits() == [commit]
+    end
+
+    test "get_commit!/1 returns the commit with given id" do
+      commit = commit_fixture()
+      assert Activity.get_commit!(commit.id) == commit
+    end
+
+    test "create_commit/1 with valid data creates a commit" do
+      assert {:ok, %Commit{} = commit} = Activity.create_commit(@valid_attrs)
+      assert commit.date == ~D[2010-04-17]
+      assert commit.message == "some message"
+      assert commit.sha == "some sha"
+    end
+
+    test "create_commit/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Activity.create_commit(@invalid_attrs)
+    end
+
+    test "update_commit/2 with valid data updates the commit" do
+      commit = commit_fixture()
+      assert {:ok, %Commit{} = commit} = Activity.update_commit(commit, @update_attrs)
+      assert commit.date == ~D[2011-05-18]
+      assert commit.message == "some updated message"
+      assert commit.sha == "some updated sha"
+    end
+
+    test "update_commit/2 with invalid data returns error changeset" do
+      commit = commit_fixture()
+      assert {:error, %Ecto.Changeset{}} = Activity.update_commit(commit, @invalid_attrs)
+      assert commit == Activity.get_commit!(commit.id)
+    end
+
+    test "delete_commit/1 deletes the commit" do
+      commit = commit_fixture()
+      assert {:ok, %Commit{}} = Activity.delete_commit(commit)
+      assert_raise Ecto.NoResultsError, fn -> Activity.get_commit!(commit.id) end
+    end
+
+    test "change_commit/1 returns a commit changeset" do
+      commit = commit_fixture()
+      assert %Ecto.Changeset{} = Activity.change_commit(commit)
+    end
+  end
 end
