@@ -12,7 +12,11 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
     save_commits_in_db(conn, commits, repository)
   end
 
-  def create(conn, %{"release" => release, "released_at" => released_at, "repository" => repository }) do
+  def create(conn, %{
+        "release" => release,
+        "released_at" => released_at,
+        "repository" => repository
+      }) do
     with releaser <- Authors.find_or_create_author(release["author"]),
          {:ok, created_release} <-
            Activity.create_release(releaser, %{

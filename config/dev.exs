@@ -22,6 +22,8 @@ config :git_activity_tracker, GitActivityTrackerWeb.Endpoint,
   check_origin: false,
   watchers: []
 
+  #I'm hard coding it for development purpose only, in production it would be in prod.secret and make sure the file is in .gitignore
+  config :git_activity_tracker, :ticket_service_host, "https://webhook.site/3d2689e1-3812-4466-afd7-77f15cdd560c"
 # ## SSL Support
 #
 # In order to use HTTPS in development, a self-signed
