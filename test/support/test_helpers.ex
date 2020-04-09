@@ -16,4 +16,19 @@ defmodule GitActivityTracker.TestHelpers do
 
     user
   end
+
+  def repository_fixture(attrs \\ %{}) do
+    {:ok, repository} =
+      attrs
+      |> Enum.into(%{name: "some name", uuid: 42})
+      |> Activity.create_repository()
+
+    repository
+  end
+
+  def release_fixture(%Authors.User{} = user, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{released_at: ~D[2010-04-17], tag_name: "some tag_name", uuid: 42})
+    {:ok, release} = Activity.create_release(user, attrs)
+    release
+  end
 end

@@ -6,6 +6,7 @@ defmodule GitActivityTracker.Activity do
   import Ecto.Query, warn: false
   alias GitActivityTracker.Repo
 
+  alias GitActivityTracker.Authors
   alias GitActivityTracker.Activity.Repository
 
   @doc """
@@ -133,21 +134,10 @@ defmodule GitActivityTracker.Activity do
   """
   def get_release!(id), do: Repo.get!(Release, id)
 
-  @doc """
-  Creates a release.
-
-  ## Examples
-
-      iex> create_release(%{field: value})
-      {:ok, %Release{}}
-
-      iex> create_release(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def create_release(attrs \\ %{}) do
+  def create_release(%Authors.User{} = user, attrs \\ %{}) do
     %Release{}
     |> Release.changeset(attrs)
+    |> Ecto.Changeset.put_assoc(:user, user)
     |> Repo.insert()
   end
 
