@@ -46,10 +46,10 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
         "repository" => repository
       }) do
     case save_commits_with_assoc_release(repository, release, released_at) do
-      {:ok, activites} ->
+      {:ok, activites, created_release} ->
         # Update the Ticket Tracking Cloud Service
         Enum.map(activites, fn commit ->
-          Parser.parse_message_and_update_ready_release_ticket(commit)
+          Parser.parse_message_and_update_released_ticket(created_release, commit)
         end)
 
         conn
@@ -92,7 +92,7 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
              created_release,
              release["commits"]
            ) do
-      {:ok, Map.values(release_commits)}
+      {:ok, Map.values(release_commits), created_release}
     else
       {:error, _, changeset, _} -> {:error, changeset}
       {:error, changeset} -> {:error, changeset}
