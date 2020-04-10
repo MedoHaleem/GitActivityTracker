@@ -25,7 +25,7 @@ defmodule GitActivityTracker.Parser do
       comment: "See SHA ##{commit.sha}"
     }
 
-    HTTPotion.post Application.fetch_env!(:git_acitvity_tracker, :ticket_service_host), [body: Jason.encode!(body), headers: ["User-Agent": "Git Activity Tracker", "Content-Type": "application/json"]]
+    HTTPotion.post Application.fetch_env!(:git_activity_tracker, :ticket_service_host), [body: Jason.encode!(body), headers: ["User-Agent": "Git Activity Tracker", "Content-Type": "application/json"]]
 
   end
 
@@ -37,7 +37,7 @@ defmodule GitActivityTracker.Parser do
       comment: "Released in #{release.tag_name}"
     }
 
-    HTTPotion.post Application.fetch_env!(:git_acitvity_tracker, :ticket_service_host), [body: Jason.encode!(body), headers: ["User-Agent": "Git Activity Tracker", "Content-Type": "application/json"]]
+    HTTPotion.post Application.fetch_env!(:git_activity_tracker, :ticket_service_host), [body: Jason.encode!(body), headers: ["User-Agent": "Git Activity Tracker", "Content-Type": "application/json"]]
 
   end
 end
