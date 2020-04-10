@@ -108,9 +108,10 @@ defmodule GitActivityTracker.Authors do
       uuid: uuid,
       username: name
     }
+
     find_or_create_author(user)
   end
-  
+
   def find_or_create_author(author) do
     author =
       case Repo.get_by(User, %{uuid: author.uuid, email: author.email}) do
@@ -123,7 +124,4 @@ defmodule GitActivityTracker.Authors do
 
     author
   end
-
-
-
 end

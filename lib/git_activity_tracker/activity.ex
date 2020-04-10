@@ -5,6 +5,7 @@ defmodule GitActivityTracker.Activity do
 
   import Ecto.Query, warn: false
   alias GitActivityTracker.Repo
+  alias Ecto.Multi
 
   alias GitActivityTracker.Authors
   alias GitActivityTracker.Activity.Repository
@@ -158,7 +159,6 @@ defmodule GitActivityTracker.Activity do
   """
   def get_release!(id), do: Repo.get!(Release, id)
 
-
   def create_release(%Authors.User{} = user, attrs \\ %{}) do
     %Release{}
     |> Release.changeset(attrs)
@@ -265,21 +265,22 @@ defmodule GitActivityTracker.Activity do
   end
 
   def save_commits(repository, commits) do
-    saved_commits =
-      Enum.map(commits, fn commit ->
-        with {:ok, activity} <-
-               create_commit(
-                 repository,
-                 Authors.find_or_create_author(commit["author"]),
-                 commit
-               ) do
-          activity
-        else
-          {:error, changeset} -> changeset
-        end
+    result =
+      commits
+      |> Enum.with_index()
+      |> Enum.reduce(Ecto.Multi.new(), fn {commit, index}, multi ->
+        multi
+        |> Multi.run(Integer.to_string(index), fn _repo, _changes ->
+          create_commit(
+            repository,
+            Authors.find_or_create_author(commit["author"]),
+            commit
+          )
+        end)
       end)
+      |> Repo.transaction()
 
-    saved_commits
+    result
   end
 
   def create_commit_with_assoc_release(
@@ -297,22 +298,23 @@ defmodule GitActivityTracker.Activity do
   end
 
   def save_commits_included_in_the_release(repository, release, commits) do
-    saved_commits =
-      Enum.map(commits, fn commit ->
-        with {:ok, activity} <-
-               GitActivityTracker.Activity.create_commit_with_assoc_release(
-                 repository,
-                 Authors.find_or_create_author(commit["author"]),
-                 release,
-                 commit
-               ) do
-          activity
-        else
-          {:error, changeset} -> changeset
-        end
+    result =
+      commits
+      |> Enum.with_index()
+      |> Enum.reduce(Ecto.Multi.new(), fn {commit, index}, multi ->
+        multi
+        |> Multi.run(Integer.to_string(index), fn _repo, _changes ->
+          create_commit_with_assoc_release(
+            repository,
+            Authors.find_or_create_author(commit["author"]),
+            release,
+            commit
+          )
+        end)
       end)
+      |> Repo.transaction()
 
-    saved_commits
+    result
   end
 
   @doc """

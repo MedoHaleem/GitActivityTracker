@@ -8,7 +8,9 @@ defmodule GitActivityTracker.Authors.User do
     field :email, :string
     field :username, :string
     field :uuid, :integer
-
+    has_many :commits, GitActivityTracker.Activity.Commit
+    has_many :releases, GitActivityTracker.Activity.Release
+    
     timestamps()
   end
 
