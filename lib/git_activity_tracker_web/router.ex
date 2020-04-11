@@ -10,6 +10,8 @@ defmodule GitActivityTrackerWeb.Router do
 
     scope "/v1", Api.V1, as: :v1 do
       resources "/activites", ActivityController, only: [:index, :create]
+      resources "/users", UserController, only: [:show]
+      resources "/repositories", RepositoryController, only: [:index]
     end
   end
 end

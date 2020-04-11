@@ -81,6 +81,22 @@ defmodule GitActivityTracker.Activity do
     repository
   end
 
+  def list_schema_commit_counts(schema) do
+    from(s in schema,
+      join: c in assoc(s, :commits),
+      join: u in assoc(c, :user),
+      group_by: [s.id, u.id],
+      select: %{schema: s, user: u, commit_count: count(c.id)}
+    )
+    |> Repo.all()
+  end
+
+  def list_repo_commit_counts_by_user() do
+    list_schema_commit_counts(Repository)
+    |> Enum.group_by(fn %{user: user} -> user.id end)
+  end
+
+
   @doc """
   Updates a repository.
 

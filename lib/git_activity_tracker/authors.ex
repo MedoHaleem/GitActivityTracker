@@ -21,6 +21,8 @@ defmodule GitActivityTracker.Authors do
     Repo.all(User)
   end
 
+
+
   @doc """
   Gets a single user.
 
@@ -35,7 +37,7 @@ defmodule GitActivityTracker.Authors do
       ** (Ecto.NoResultsError)
 
   """
-  def get_user!(id), do: Repo.get!(User, id)
+  def get_user!(id), do: Repo.get!(User, id) |> Repo.preload(:commits) |> Repo.preload(:releases)
 
   @doc """
   Creates a user.

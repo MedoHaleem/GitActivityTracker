@@ -41,8 +41,6 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityView do
   end
 
   def render("release_activity.json", %{activity: activity}) do
-    IO.puts "======================================================================================================================"
-    IO.inspect activity
     case activity do
       %GitActivityTracker.Activity.Commit{} ->
       %{

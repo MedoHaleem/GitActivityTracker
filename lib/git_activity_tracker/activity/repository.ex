@@ -7,6 +7,7 @@ defmodule GitActivityTracker.Activity.Repository do
   schema "repositories" do
     field :name, :string
     field :uuid, :integer
+    has_many :commits, GitActivityTracker.Activity.Commit
 
     timestamps()
   end

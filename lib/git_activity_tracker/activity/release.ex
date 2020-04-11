@@ -9,6 +9,7 @@ defmodule GitActivityTracker.Activity.Release do
     field :tag_name, :string
     field :uuid, :integer
     belongs_to :user, GitActivityTracker.Authors.User
+    has_many :commits, GitActivityTracker.Activity.Commit
 
     timestamps()
   end

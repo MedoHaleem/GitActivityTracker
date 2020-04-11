@@ -4,13 +4,14 @@ defmodule GitActivityTracker.Authors.User do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+
   schema "users" do
     field :email, :string
     field :username, :string
     field :uuid, :integer
     has_many :commits, GitActivityTracker.Activity.Commit
     has_many :releases, GitActivityTracker.Activity.Release
-    
+
     timestamps()
   end
 
