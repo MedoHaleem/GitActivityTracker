@@ -51,7 +51,7 @@ While I don't know how the git hosting cloud service working but my experience i
 
 I decided to tackle this issue and I know it was meant for future discussion but I learned something new from it.
 
-for starter Ecto doesn't offer "polymorphic associations" so traditional way using ActiveRecord (In Rails) or Sequelize (NodeJs).
+for starter Ecto doesn't offer "polymorphic associations" so I can't user the traditional way  that is used by ActiveRecord (In Rails) or Sequelize (NodeJs).
 
 so I had to improvise by using abstract schema
 
