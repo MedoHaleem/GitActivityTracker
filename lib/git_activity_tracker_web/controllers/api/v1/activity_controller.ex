@@ -8,6 +8,10 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
   def create(conn, %{"pull_request" => %{"commits" => commits}, "repository" => repository}) do
     case save_commits_in_db(commits, repository) do
       {:ok, activites} ->
+        Enum.map(activites, fn commit ->
+          Parser.parse_and_save_tickets(commit)
+        end)
+
         conn
         |> put_status(:created)
         |> put_resp_header("location", Routes.api_v1_activity_path(conn, :index, activites))

@@ -4,8 +4,8 @@ defmodule GitActivityTracker.Parser do
   # this is just simple implementation but this part of the app can  be an genserver
   #that in case if the failed response from ticket service we send try again in five minutes
   def parse(message) do
-    [message, tickets] = String.split(message, "\n\n")
-    tickets = parse_tickets(tickets)
+    [_message, tickets] = String.split(message, "\n\n")
+    parse_tickets(tickets)
   end
 
   def parse_tickets(tickets) do
@@ -29,8 +29,14 @@ defmodule GitActivityTracker.Parser do
 
   end
 
+  def parse_and_save_tickets(commit) do
+    issues = parse(commit.message)
+    Activity.save_tickets(commit, issues)
+  end
+
   def parse_message_and_update_released_ticket(release, commit) do
     issues = parse(commit.message)
+    Activity.save_tickets(commit, issues)
     body = %{
       query: ~S(state #{released}),
       issues: issues,
