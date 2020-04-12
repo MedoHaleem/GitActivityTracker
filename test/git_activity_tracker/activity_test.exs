@@ -193,4 +193,80 @@ defmodule GitActivityTracker.ActivityTest do
       assert %Ecto.Changeset{} = Activity.change_commit(commit)
     end
   end
+
+  describe "tickets" do
+    alias GitActivityTracker.Activity.Ticket
+
+    @valid_attrs %{name: "some name"}
+    @update_attrs %{name: "some updated name"}
+    @invalid_attrs %{name: nil}
+
+
+
+    test "list_tickets/0 returns all tickets" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      %Ticket{id: id} = ticket_fixture(commit)
+      assert [%Ticket{id: ^id}] = Activity.list_tickets()
+    end
+
+    test "get_ticket!/1 returns the ticket with given id" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      %Ticket{id: id} = ticket = ticket_fixture(commit)
+      assert %Ticket{id: ^id} = Activity.get_ticket!(ticket.id)
+    end
+
+    test "create_ticket/1 with valid data creates a ticket" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      assert {:ok, %Ticket{} = ticket} = Activity.create_ticket(commit, @valid_attrs)
+      assert ticket.name == "some name"
+    end
+
+    test "create_ticket/1 with invalid data returns error changeset" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      assert {:error, %Ecto.Changeset{}} = Activity.create_ticket(commit, @invalid_attrs)
+    end
+
+    test "update_ticket/2 with valid data updates the ticket" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      ticket = ticket_fixture(commit)
+      assert {:ok, %Ticket{} = ticket} = Activity.update_ticket(ticket, @update_attrs)
+      assert ticket.name == "some updated name"
+    end
+
+    test "update_ticket/2 with invalid data returns error changeset" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      %Ticket{id: id} = ticket = ticket_fixture(commit)
+      assert {:error, %Ecto.Changeset{}} = Activity.update_ticket(ticket, @invalid_attrs)
+      assert %Ticket{id: ^id} = Activity.get_ticket!(ticket.id)
+    end
+
+    test "delete_ticket/1 deletes the ticket" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      ticket = ticket_fixture(commit)
+      assert {:ok, %Ticket{}} = Activity.delete_ticket(ticket)
+      assert_raise Ecto.NoResultsError, fn -> Activity.get_ticket!(ticket.id) end
+    end
+
+    test "change_ticket/1 returns a ticket changeset" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      commit = commit_fixture(repo, owner)
+      ticket = ticket_fixture(commit)
+      assert %Ecto.Changeset{} = Activity.change_ticket(ticket)
+    end
+  end
 end

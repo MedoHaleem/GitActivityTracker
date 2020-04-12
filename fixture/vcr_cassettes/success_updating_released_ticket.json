@@ -1,0 +1,49 @@
+[
+  {
+    "request": {
+      "body": "{\"comment\":\"Released in some tag_name\",\"issues\":[{\"id\":\"sp-131\"}],\"query\":\"state #{released}\"}",
+      "headers": {
+        "User-Agent": "Git Activity Tracker",
+        "Content-Type": "application/json"
+      },
+      "method": "post",
+      "options": {
+        "ssl_options": {
+          "server_name_indication": [
+            119,
+            101,
+            98,
+            104,
+            111,
+            111,
+            107,
+            46,
+            115,
+            105,
+            116,
+            101
+          ]
+        }
+      },
+      "request_body": "",
+      "url": "https://webhook.site/3d2689e1-3812-4466-afd7-77f15cdd560c"
+    },
+    "response": {
+      "binary": false,
+      "body": "",
+      "headers": {
+        "Server": "nginx/1.14.2",
+        "Content-Type": "text/plain; charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Vary": "Accept-Encoding",
+        "X-Request-Id": "354c45b6-7014-4fb0-9218-71818dc528f2",
+        "X-Token-Id": "3d2689e1-3812-4466-afd7-77f15cdd560c",
+        "Cache-Control": "no-cache, private",
+        "Date": "Sun, 12 Apr 2020 12:10:49 GMT",
+        "Set-Cookie": "laravel_session=5aylKZgTCxkscnQca7U0XXNtFGrkIVY1LD2XYEVD; expires=Sun, 12-Apr-2020 14:10:49 GMT; Max-Age=7200; path=/; httponly"
+      },
+      "status_code": 200,
+      "type": "ok"
+    }
+  }
+]

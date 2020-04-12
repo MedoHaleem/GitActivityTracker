@@ -16,8 +16,8 @@ defmodule GitActivityTracker.AuthorsTest do
     end
 
     test "get_user!/1 returns the user with given id" do
-      user = user_fixture()
-      assert Authors.get_user!(user.id) == user
+      %User{id: id} = user_fixture()
+      assert [%User{id: ^id}] = Authors.list_users()
     end
 
     test "create_user/1 with valid data creates a user" do
@@ -40,9 +40,9 @@ defmodule GitActivityTracker.AuthorsTest do
     end
 
     test "update_user/2 with invalid data returns error changeset" do
-      user = user_fixture()
+      %User{id: id} = user = user_fixture()
       assert {:error, %Ecto.Changeset{}} = Authors.update_user(user, @invalid_attrs)
-      assert user == Authors.get_user!(user.id)
+      assert [%User{id: ^id}] = Authors.list_users()
     end
 
     test "delete_user/1 deletes the user" do

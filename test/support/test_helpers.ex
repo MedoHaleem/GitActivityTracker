@@ -33,9 +33,16 @@ defmodule GitActivityTracker.TestHelpers do
   end
 
   def commit_fixture(%Activity.Repository{} = repository, %Authors.User{} = user, attrs \\ %{}) do
-    attrs = Enum.into(attrs, %{date: ~D[2010-04-17], message: "some message", sha: "ASDADDFSFHGHJGHJHGJK"})
+    attrs = Enum.into(attrs, %{date: ~D[2010-04-17], message: "FEAT: Support Android 8.1 devices \n\nRef: #sp-131", sha: "ASDADDFSFHGHJGHJHGJK"})
     {:ok, commit} = Activity.create_commit(repository, user, attrs)
 
     commit
+  end
+
+  def ticket_fixture(commit, attrs \\ %{}) do
+    attrs = Enum.into(attrs, %{name: "sp-111"})
+    {:ok, ticket} = Activity.create_ticket(commit, attrs)
+
+    ticket
   end
 end

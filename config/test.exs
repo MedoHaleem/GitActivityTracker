@@ -14,5 +14,7 @@ config :git_activity_tracker, GitActivityTrackerWeb.Endpoint,
   http: [port: 4002],
   server: false
 
+  config :git_activity_tracker, :ticket_service_host, "https://webhook.site/3d2689e1-3812-4466-afd7-77f15cdd560c"
+
 # Print only warnings and errors during test
 config :logger, level: :warn
