@@ -113,6 +113,8 @@ defmodule GitActivityTracker.Authors do
     find_or_create_author(user)
   end
 
+  def find_or_create_author(%{uuid: nil} = author), do: {:error, %User{} |> User.changeset(author)}
+
   def find_or_create_author(%{uuid: uuid} = author) do
     case Repo.get_by(User, %{uuid: uuid}) do
       nil  -> %User{}

@@ -1,5 +1,5 @@
 defmodule GitActivityTracker.ParserTest do
-  use GitActivityTracker.DataCase
+  use GitActivityTracker.DataCase, async: true
   use ExVCR.Mock
 
   setup do

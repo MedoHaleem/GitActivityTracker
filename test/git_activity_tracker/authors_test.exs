@@ -27,6 +27,24 @@ defmodule GitActivityTracker.AuthorsTest do
       assert user.uuid == 42
     end
 
+    test "find_or_create_author/1 returns the new repository that wasn't created before" do
+      assert {:ok, %User{} = author} = Authors.find_or_create_author(@valid_attrs)
+      assert author.username == "some username"
+      assert author.uuid == 42
+    end
+
+    test "find_or_create_author/1 returns the repository that already exists" do
+      repository_fixture(@valid_attrs)
+      assert {:ok, %User{} = author} = Authors.find_or_create_author(@valid_attrs)
+      assert author.username == "some username"
+      assert author.uuid == 42
+    end
+
+
+    test "find_or_create_author/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Authors.find_or_create_author(@invalid_attrs)
+    end
+
     test "create_user/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Authors.create_user(@invalid_attrs)
     end

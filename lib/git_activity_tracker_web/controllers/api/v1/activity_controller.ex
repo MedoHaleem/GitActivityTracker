@@ -16,7 +16,8 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> render(GitActivityTrackerWeb.ChangesetView, "error.json", changeset: changeset)
+        |> put_view(GitActivityTrackerWeb.ChangesetView)
+        |> render("error.json", changeset: changeset)
     end
   end
 
@@ -36,7 +37,8 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> render(GitActivityTrackerWeb.ChangesetView, "error.json", changeset: changeset)
+        |> put_view(GitActivityTrackerWeb.ChangesetView)
+        |> render("error.json", changeset: changeset)
     end
   end
 
@@ -60,14 +62,12 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
       {:error, changeset} ->
         conn
         |> put_status(:bad_request)
-        |> render(GitActivityTrackerWeb.ChangesetView, "error.json", changeset: changeset)
+        |> put_view(GitActivityTrackerWeb.ChangesetView)
+        |> render("error.json", changeset: changeset)
     end
   end
 
   defp save_commits_in_db(commits, repository) do
-    IO.puts "=================================================================="
-    result = Activity.find_or_create_repository(repository)
-    inspect result
     with {:ok, commit_repository} <-
            Activity.find_or_create_repository(repository),
          {:ok, activites} <- Activity.save_commits(commit_repository, commits) do

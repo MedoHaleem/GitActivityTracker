@@ -64,6 +64,8 @@ defmodule GitActivityTracker.Activity do
     find_or_create_repository(repo_params)
   end
 
+  def find_or_create_repository(%{uuid: nil} = repo_params), do: {:error, %Repository{} |> Repository.changeset(repo_params)}
+
   def find_or_create_repository(%{uuid: uuid} = repo_params) do
     case Repo.get_by(Repository, %{uuid: uuid}) do
       nil  -> %Repository{}

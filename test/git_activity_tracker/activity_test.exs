@@ -1,5 +1,5 @@
 defmodule GitActivityTracker.ActivityTest do
-  use GitActivityTracker.DataCase
+  use GitActivityTracker.DataCase, async: true
 
   alias GitActivityTracker.Activity
 
@@ -15,9 +15,33 @@ defmodule GitActivityTracker.ActivityTest do
       assert Activity.list_repositories() == [repository]
     end
 
+    test "list_repo_commit_counts_by_user/0 returns all counts of commit for each repo grouped by user" do
+      repository = repository_fixture()
+      owner = user_fixture()
+      commit_fixture(repository, owner)
+      assert Activity.list_repo_commit_counts_by_user() == %{owner.id => [%{commit_count: 1, schema: repository, user: owner}]}
+    end
+
     test "get_repository!/1 returns the repository with given id" do
       repository = repository_fixture()
       assert Activity.get_repository!(repository.id) == repository
+    end
+
+    test "find_or_create_repository/1 returns the new repository that wasn't created before" do
+      assert {:ok, %Repository{} = repository} = Activity.find_or_create_repository(@valid_attrs)
+      assert repository.name == "some name"
+      assert repository.uuid == 42
+    end
+
+    test "find_or_create_repository/1 returns the repository that already exists" do
+      repository_fixture(@valid_attrs)
+      assert {:ok, %Repository{} = repository} = Activity.find_or_create_repository(@valid_attrs)
+      assert repository.name == "some name"
+      assert repository.uuid == 42
+    end
+
+    test "find_or_create_repository/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Activity.find_or_create_repository(@invalid_attrs)
     end
 
     test "create_repository/1 with valid data creates a repository" do
@@ -69,6 +93,15 @@ defmodule GitActivityTracker.ActivityTest do
       owner = user_fixture()
       %Release{id: id1} = release_fixture(owner)
       assert [%Release{id: ^id1}] = Activity.list_releases()
+    end
+
+    test "list_releases_commit_counts_by_user/0 returns all counts of commit for each release grouped by user" do
+      repository = repository_fixture()
+      owner = user_fixture()
+      release = release_fixture(owner)
+      release = Activity.get_release!(release.id)
+      Activity.create_commit_with_assoc_release(repository, owner, release, %{date: ~D[2010-04-17], message: "some message", sha: "some sha"})
+      assert Activity.list_releases_commit_counts_by_user() == %{owner.id => [%{commit_count: 1, schema: release, user: owner}]}
     end
 
     test "get_release!/1 returns the release with given id" do
@@ -145,7 +178,7 @@ defmodule GitActivityTracker.ActivityTest do
       assert %Commit{id: ^id} = Activity.get_commit!(id)
     end
 
-    test "create_commit/1 with valid data creates a commit" do
+    test "create_commit/2 with valid data creates a commit" do
       owner = user_fixture()
       repo = repository_fixture()
       assert {:ok, %Commit{} = commit} = Activity.create_commit(repo, owner, @valid_attrs)
@@ -154,11 +187,108 @@ defmodule GitActivityTracker.ActivityTest do
       assert commit.sha == "some sha"
     end
 
-    test "create_commit/1 with invalid data returns error changeset" do
+    test "create_commit/2 with invalid data returns error changeset" do
       owner = user_fixture()
       repo = repository_fixture()
       assert {:error, %Ecto.Changeset{}} = Activity.create_commit(repo, owner, @invalid_attrs)
     end
+
+    test "create_commit_with_assoc_release/3 with valid data creates a commit" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      release = release_fixture(owner)
+      assert {:ok, %Commit{} = commit} = Activity.create_commit_with_assoc_release(repo, owner, release,@valid_attrs)
+      assert commit.date == ~D[2010-04-17]
+      assert commit.message == "some message"
+      assert commit.sha == "some sha"
+    end
+
+    test "create_commit_with_assoc_release/3 with invalid data returns error changeset" do
+      owner = user_fixture()
+      repo = repository_fixture()
+      release = release_fixture(owner)
+      assert {:error, %Ecto.Changeset{}} = Activity.create_commit_with_assoc_release(repo, owner, release, @invalid_attrs)
+    end
+
+    test "save_commits/2 with valid data creates list of commits" do
+      repo = repository_fixture()
+      commits = [
+        %{
+          "author" => %{
+            "email" => "ahmed@suitepad.de",
+            "id" => 21431007,
+            "name" => "ahmed"
+          },
+          "date" => "2018-05-27T16:00:49Z",
+          "message" => "some message",
+          "sha" => "some sha"
+        }]
+      {:ok, result} = Activity.save_commits(repo,commits)
+      [commit] = Map.values(result)
+      assert commit.date == ~D[2018-05-27]
+      assert commit.message == "some message"
+      assert commit.sha == "some sha"
+    end
+
+
+    test "save_commits/2 with invalid return changeset" do
+      repo = repository_fixture()
+      commits = [
+        %{
+          "author" => %{
+            "email" => "ahmed@suitepad.de",
+            "id" => 21431007,
+            "name" => "ahmed"
+          },
+          "date" => nil,
+          "message" => nil,
+          "sha" => nil
+        }]
+        assert {:error, _, changeset, _} = Activity.save_commits(repo,commits)
+    end
+
+    test "save_commits_included_in_the_release/3 with valid data creates list of commits" do
+      repo = repository_fixture()
+      owner = user_fixture()
+      release = release_fixture(owner)
+      commits = [
+        %{
+          "author" => %{
+            "email" => "ahmed@suitepad.de",
+            "id" => 21431007,
+            "name" => "ahmed"
+          },
+          "date" => "2018-05-27T16:00:49Z",
+          "message" => "some message",
+          "sha" => "some sha"
+        }]
+      {:ok, result} = Activity.save_commits_included_in_the_release(repo, release, commits)
+      [commit] = Map.values(result)
+      assert commit.date == ~D[2018-05-27]
+      assert commit.message == "some message"
+      assert commit.sha == "some sha"
+    end
+
+
+    test "save_commits_included_in_the_release/3 with invalid return changeset" do
+      repo = repository_fixture()
+      owner = user_fixture()
+      release = release_fixture(owner)
+      commits = [
+        %{
+          "author" => %{
+            "email" => "ahmed@suitepad.de",
+            "id" => 21431007,
+            "name" => "ahmed"
+          },
+          "date" => nil,
+          "message" => nil,
+          "sha" => nil
+        }]
+        assert {:error, _, changeset, _} = Activity.save_commits_included_in_the_release(repo, release, commits)
+    end
+
+
 
     test "update_commit/2 with valid data updates the commit" do
       owner = user_fixture()
@@ -232,6 +362,33 @@ defmodule GitActivityTracker.ActivityTest do
       repo = repository_fixture()
       commit = commit_fixture(repo, owner)
       assert {:error, %Ecto.Changeset{}} = Activity.create_ticket(commit, @invalid_attrs)
+    end
+
+    test "save_tickets/2 with valid data creates list of tickets" do
+      repo = repository_fixture()
+      owner = user_fixture()
+      commit = commit_fixture(repo, owner)
+      tickets = [
+        %{
+          id: "sp-111"
+        }
+        ]
+      {:ok, result} = Activity.save_tickets(commit, tickets)
+      [ticket] = Map.values(result)
+      assert ticket.name == "sp-111"
+    end
+
+
+    test "save_tickets/2 with invalid return changeset" do
+      repo = repository_fixture()
+      owner = user_fixture()
+      commit = commit_fixture(repo, owner)
+      tickets = [
+        %{
+          id: nil
+        }
+        ]
+        assert {:error, _, changeset, _} = Activity.save_tickets(commit,tickets)
     end
 
     test "update_ticket/2 with valid data updates the ticket" do

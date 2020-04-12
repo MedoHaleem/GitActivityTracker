@@ -1,8 +1,6 @@
 defmodule GitActivityTrackerWeb.Api.V1.ActivityControllerTest do
-  use GitActivityTrackerWeb.ConnCase
+  use GitActivityTrackerWeb.ConnCase, async: true
   use ExVCR.Mock
-
-  alias GitActivityTracker.Activity
 
   setup %{conn: conn} do
     {:ok, conn: put_req_header(conn, "accept", "application/json")}
@@ -132,9 +130,9 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityControllerTest do
       end
     end
 
-    # test "renders errors when data is invalid", %{conn: conn} do
-    #   conn = post(conn, Routes.api_v1_activity_path(conn, :create), @invalid_attrs)
-    #   assert json_response(conn, 422)["errors"] != %{}
-    # end
+    test "renders errors when data is invalid", %{conn: conn} do
+      conn = post(conn, Routes.api_v1_activity_path(conn, :create), @invalid_attrs)
+      assert %{"name" => ["can't be blank"], "uuid" => ["can't be blank"]}  = json_response(conn, 400)["errors"]
+    end
   end
 end
