@@ -1,4 +1,4 @@
-defmodule GitActivityTrackerWeb.Api.V1.RepositoryController do
+defmodule GitActivityTrackerWeb.Api.V1.Users.RepositoryController do
   use GitActivityTrackerWeb, :controller
   alias GitActivityTracker.Activity
 

@@ -9,6 +9,7 @@ defmodule GitActivityTracker.Activity do
 
   alias GitActivityTracker.Authors
   alias GitActivityTracker.Activity.Repository
+  alias GitActivityTracker.Activity.Release
 
   @doc """
   Returns the list of repositories.
@@ -96,6 +97,11 @@ defmodule GitActivityTracker.Activity do
     |> Enum.group_by(fn %{user: user} -> user.id end)
   end
 
+  def list_releases_commit_counts_by_user() do
+    list_schema_commit_counts(Release)
+    |> Enum.group_by(fn %{user: user} -> user.id end)
+  end
+
 
   @doc """
   Updates a repository.
@@ -144,7 +150,7 @@ defmodule GitActivityTracker.Activity do
     Repository.changeset(repository, %{})
   end
 
-  alias GitActivityTracker.Activity.Release
+
 
   @doc """
   Returns the list of releases.
