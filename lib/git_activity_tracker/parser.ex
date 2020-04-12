@@ -5,9 +5,7 @@ defmodule GitActivityTracker.Parser do
   #that in case if the failed response from ticket service we send try again in five minutes
   def parse(message) do
     [message, tickets] = String.split(message, "\n\n")
-    IO.inspect message
     tickets = parse_tickets(tickets)
-    IO.inspect tickets
   end
 
   def parse_tickets(tickets) do

@@ -58,28 +58,19 @@ defmodule GitActivityTracker.Activity do
     |> Repo.insert()
   end
 
-  # def find_or_create_repository(repo_params) do
-  #   repository =
-
-  #   repository
-  # end
 
   def find_or_create_repository(%{"id" => uuid, "name" => name}) do
     repo_params = %{uuid: uuid, name: name}
     find_or_create_repository(repo_params)
   end
 
-  def find_or_create_repository(repo_params) do
-    repository =
-      case Repo.get_by(Repository, %{uuid: repo_params.uuid, name: repo_params.name}) do
-        nil ->
-          %Repository{} |> Repository.changeset(repo_params) |> Repo.insert!()
-
-        repository ->
-          repository
-      end
-
-    repository
+  def find_or_create_repository(%{uuid: uuid} = repo_params) do
+    case Repo.get_by(Repository, %{uuid: uuid}) do
+      nil  -> %Repository{}
+      repo -> repo
+    end
+    |> Repository.changeset(repo_params)
+    |> Repo.insert_or_update
   end
 
   def list_schema_commit_counts(schema) do
@@ -293,11 +284,14 @@ defmodule GitActivityTracker.Activity do
       |> Enum.reduce(Ecto.Multi.new(), fn {commit, index}, multi ->
         multi
         |> Multi.run(Integer.to_string(index), fn _repo, _changes ->
-          create_commit(
-            repository,
-            Authors.find_or_create_author(commit["author"]),
-            commit
-          )
+          case Authors.find_or_create_author(commit["author"]) do
+            {:ok, author} -> create_commit(
+              repository,
+              author,
+              commit
+            )
+            _ -> {:error, "failed to save the author for the commit"}
+          end
         end)
       end)
       |> Repo.transaction()
@@ -326,12 +320,16 @@ defmodule GitActivityTracker.Activity do
       |> Enum.reduce(Ecto.Multi.new(), fn {commit, index}, multi ->
         multi
         |> Multi.run(Integer.to_string(index), fn _repo, _changes ->
-          create_commit_with_assoc_release(
-            repository,
-            Authors.find_or_create_author(commit["author"]),
-            release,
-            commit
-          )
+          case Authors.find_or_create_author(commit["author"]) do
+            {:ok, author} -> create_commit_with_assoc_release(
+              repository,
+              author,
+              release,
+              commit
+            )
+            _ -> {:error, "failed to save the author for the commit"}
+          end
+
         end)
       end)
       |> Repo.transaction()

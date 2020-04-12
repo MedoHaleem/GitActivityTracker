@@ -14,7 +14,6 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityView do
   end
 
   def render("index_with_release.json", %{activites: activites}) do
-    IO.inspect activites
     %{
       data: render_many(activites, __MODULE__, "release_activity.json")
     }

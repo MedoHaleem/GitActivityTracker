@@ -65,7 +65,10 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
   end
 
   defp save_commits_in_db(commits, repository) do
-    with commit_repository <-
+    IO.puts "=================================================================="
+    result = Activity.find_or_create_repository(repository)
+    inspect result
+    with {:ok, commit_repository} <-
            Activity.find_or_create_repository(repository),
          {:ok, activites} <- Activity.save_commits(commit_repository, commits) do
       activites = Map.values(activites)
@@ -77,14 +80,14 @@ defmodule GitActivityTrackerWeb.Api.V1.ActivityController do
   end
 
   defp save_commits_with_assoc_release(repository, release, released_at) do
-    with releaser <- Authors.find_or_create_author(release["author"]),
+    with {:ok, releaser} <- Authors.find_or_create_author(release["author"]),
          {:ok, created_release} <-
            Activity.create_release(releaser, %{
              uuid: release["id"],
              tag_name: release["tag_name"],
              released_at: released_at
            }),
-         release_repository <-
+         {:ok, release_repository} <-
            Activity.find_or_create_repository(repository),
          {:ok, release_commits} <-
            Activity.save_commits_included_in_the_release(
