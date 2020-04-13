@@ -1,11 +1,7 @@
 
 # GitActivityTracker
 
-  
-
 To start your Phoenix server:
-
-  
 
 * Install dependencies with `mix deps.get`
 
@@ -17,16 +13,11 @@ To start your Phoenix server:
 
 * Run tests by typing `mix test`
 
-  
-
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
-
-  
 
 ## Design Decisions
   
-
-### Authentication:
+### Authentication
 
 I didn't implement an authentication system for the sake of simplicity and easier setup for the reviewer.
 
@@ -34,20 +25,19 @@ But I'm going to outline my thoughts regarding it:
 
 While I don't know how the git hosting cloud service working but my experience integrating git hosting with CI like codeship only required using ssh keys but assuming that git hosting is another app written in elixir we can do the following in order of simplicity:
 
- - We can make our app to accept requests only coming from specific IP
+- We can make our app to accept requests only coming from specific IP
    (Git Cloud Service), and this can be implemented on a system level
    using firewall or App level,
    
-  - We can use a permanent access token to verify and authenticate the
+- We can use a permanent access token to verify and authenticate the
    upcoming request
-   
-   - We can use Machine to Machine authentication and use third party
+
+- We can use Machine to Machine authentication and use third party
    service like Auth0, and assuming if the git service is also built on
    elixir we can use Genserver that fetch a new access token during init
    and get new token after expiration of the old token
 
-
-### API to query and count commit activity by repo and committer:
+### API to query and count commit activity by repo and committer
 
 I decided to tackle this issue and I know it was meant for future discussion but I learned something new from it.
 
@@ -55,7 +45,7 @@ for starter Ecto doesn't offer "polymorphic associations" so I can't go the trad
 
 so I had to improvise by using abstract schema
 
-```
+```elixir
   def list_schema_commit_counts(schema) do
     from(s in schema,
       join: c in assoc(s, :commits),
@@ -68,7 +58,9 @@ so I had to improvise by using abstract schema
 ```
 
 and use functions to pass the schema I want then group by user_id
-```
+
+```elixir
+
   def list_repo_commit_counts_by_user() do
     list_schema_commit_counts(Repository)
     |> Enum.group_by(fn %{user: user} -> user.id end)
